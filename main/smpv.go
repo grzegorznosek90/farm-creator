@@ -63,7 +63,6 @@ func buildStructure(smpv *SMPV) {
 			fmt.Sprintf("%03d", smpv.String_num)
 
 		invName := "INV-" + fmt.Sprintf("%06d", smpv.Inv_num)
-		fmt.Println("SMPV: " + smpvName + "\t" + stringName + "\t" + invName)
 
 		toSend := new(SMPVToSend)
 		toSend.IgtIdSmpv = smpvName;
@@ -77,7 +76,7 @@ func buildStructure(smpv *SMPV) {
 		toSend.Pch = smpv.Measurements.Pch
 		toSend.Temp = smpv.Measurements.Temp
 
-		fmt.Println(toSend)
+	
 		smpvToSend.PushBack(toSend)
 
 		toSendString := new(Sstring)

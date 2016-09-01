@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"net"
-	"fmt"
 	"encoding/json"
 	"container/list"
 	"log"
@@ -89,16 +88,15 @@ func emit(){
 	for{
 		status, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			fmt.Printf("error")
+			log.Fatal(err)
 		}
-		fmt.Printf(status)
 		err = json.Unmarshal([]byte(status), &meas)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 		err = json.Unmarshal([]byte(meas.Value), &smpvs)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 		smpvToSend = list.New()
 		stringsToSend = list.New()
@@ -106,13 +104,8 @@ func emit(){
 		farmsToSend = list.New()
 
 		for x := 0; x < len(smpvs.Data); x++ {
-				fmt.Println(smpvs.Data[x])
 				buildStructure(smpvs.Data[x])
 			}
-
-			fmt.Println(smpvToSend)
-			fmt.Println(stringsToSend)
-			fmt.Println(invertersToSend)
 
 			pv := smpvToSend.Front()
 			for pv != nil {
