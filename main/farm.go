@@ -4,7 +4,7 @@ import (
 	"log"
 )
 
-type Inverter struct {
+type Farm struct {
 	SMPV_Uch             CmpVal
 	SMPV_Ich             CmpVal
 	SMPV_Pch             CmpVal
@@ -17,12 +17,16 @@ type Inverter struct {
 	STRING_L_ok_num      int
 	STRING_L_error_num   int
 	STRING_L_offline_num int
-
+	INV_L_num            int
+	INV_L_ok_num         int
+	INV_L_error_num      int
+	INV_L_offline_num    int
 	IgtIdFarm        string    `json:"iGT_id_sys"`
-	IgtIdGroup      string    `json:"iGT_id_group"`
 }
 
-func (s *Subscriber) SendInv(sample *Inverter) error {
+
+
+	func (s *Subscriber) SendFarm(sample *Farm) error {
 	if err := s.enc.Encode(sample); err != nil {
 		return err
 	}
@@ -35,14 +39,14 @@ func (s *Subscriber) SendInv(sample *Inverter) error {
 	return nil
 }
 
-func updateSubscribersInv(sample *Inverter) {
+	func updateSubscribersFarm(sample *Farm) {
 	mu.Lock()
 	defer mu.Unlock()
 	log.Printf("Subscribers: %d", subs.Len())
 	e := subs.Front()
 	for e != nil {
 		s := e.Value.(*Subscriber)
-		if err := s.SendInv(sample); err != nil {
+		if err := s.SendFarm(sample); err != nil {
 			log.Printf("Subscriber failed, err: %v", err)
 			subs.Remove(e)
 		}
@@ -50,13 +54,13 @@ func updateSubscribersInv(sample *Inverter) {
 	}
 }
 
-func updateInv(){
-	inv := invertersToSend.Front()
-	for inv != nil {
-		inverter := inv.Value.(*Inverter)
+func updateFarms(){
+	farm := farmsToSend.Front()
+	for farm != nil {
+		frm := farm.Value.(*Farm)
 
-			inverter.SMPV_Ich.V = inverter.SMPV_Ich.V/float64(inverter.SMPV_num)
+			frm.SMPV_Ich.V = frm.SMPV_Ich.V/float64(frm.SMPV_num)
 
-		inv = inv.Next()
+		farm = farm.Next()
 	}
 }

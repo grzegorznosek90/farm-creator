@@ -63,11 +63,13 @@ func buildStructure(smpv *SMPV) {
 			fmt.Sprintf("%03d", smpv.String_num)
 
 		invName := "INV-" + fmt.Sprintf("%06d", smpv.Inv_num)
-
+		farmName := "Farm-1";
+		
 		toSend := new(SMPVToSend)
 		toSend.IgtIdSmpv = smpvName;
 		toSend.IgtIdString = stringName;
 		toSend.IgtIdGroup = invName;
+		toSend.IgtIdFarm = farmName;
 
 		toSend.E = smpv.Measurements.E
 		toSend.Ich = smpv.Measurements.Ich
@@ -76,7 +78,7 @@ func buildStructure(smpv *SMPV) {
 		toSend.Pch = smpv.Measurements.Pch
 		toSend.Temp = smpv.Measurements.Temp
 
-	
+
 		smpvToSend.PushBack(toSend)
 
 		toSendString := new(Sstring)
@@ -93,8 +95,9 @@ func buildStructure(smpv *SMPV) {
 
 		toSendString.IgtIdString = stringName;
 		toSendString.IgtIdGroup = invName;
+		toSendString.IgtIdFarm = farmName;
 
-		//toSendString.SMPV_Ich.V += smpv.Measurements.Ich.V
+		toSendString.SMPV_Ich.V += smpv.Measurements.Ich.V
 		toSendString.SMPV_Pch.V += smpv.Measurements.Pch.V
 		toSendString.SMPV_Uch.V += smpv.Measurements.Uch.V
 		toSendString.SMPV_E.V += smpv.Measurements.E
@@ -104,7 +107,6 @@ func buildStructure(smpv *SMPV) {
 					toSendString.SMPV_error_num++
 				}
 		toSendString.SMPV_num = toSendString.SMPV_ok_num + toSendString.SMPV_error_num
-		toSendString.SMPV_Ich.V = (toSendString.SMPV_Ich.V*float64((toSendString.SMPV_num-1)))/float64(toSendString.SMPV_num)
 		stringsToSend.PushBack(toSendString)
 
 
@@ -122,8 +124,9 @@ func buildStructure(smpv *SMPV) {
 		}
 
 		toSendInverter.IgtIdGroup = invName;
+		toSendInverter.IgtIdFarm = farmName;
 
-		//toSendString.SMPV_Ich.V += smpv.Measurements.Ich.V
+		toSendInverter.SMPV_Ich.V += smpv.Measurements.Ich.V
 		toSendInverter.SMPV_Pch.V += smpv.Measurements.Pch.V
 		toSendInverter.SMPV_Uch.V += smpv.Measurements.Uch.V
 		toSendInverter.SMPV_E.V += smpv.Measurements.E
@@ -134,8 +137,36 @@ func buildStructure(smpv *SMPV) {
 				}
 
 		toSendInverter.SMPV_num = toSendInverter.SMPV_ok_num + toSendInverter.SMPV_error_num
-		toSendInverter.SMPV_Ich.V = (toSendInverter.SMPV_Ich.V* float64((toSendInverter.SMPV_num-1)))/float64(toSendInverter.SMPV_num)
-		invertersToSend.PushBack(toSendInverter)
+	  invertersToSend.PushBack(toSendInverter)
+
+
+
+		toSendFarm := new(Farm)
+		farm := farmsToSend.Front()
+		for farm != nil {
+			farmObj := farm.Value.(*Farm)
+			if farmName == farmObj.IgtIdFarm {
+				toSendFarm = farmObj
+				farmsToSend.Remove(farm)
+				break
+			}
+			farm = farm.Next()
+		}
+
+		toSendFarm.IgtIdFarm = farmName;
+
+		toSendFarm.SMPV_Ich.V += smpv.Measurements.Ich.V
+		toSendFarm.SMPV_Pch.V += smpv.Measurements.Pch.V
+		toSendFarm.SMPV_Uch.V += smpv.Measurements.Uch.V
+		toSendFarm.SMPV_E.V += smpv.Measurements.E
+		if smpv.Measurements.Kch.V >0 {
+					toSendFarm.SMPV_ok_num++
+				} else {
+					toSendFarm.SMPV_error_num++
+				}
+
+		toSendFarm.SMPV_num = toSendFarm.SMPV_ok_num + toSendFarm.SMPV_error_num
+		farmsToSend.PushBack(toSendFarm)
 
 
 }

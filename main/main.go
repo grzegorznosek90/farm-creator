@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"fmt"
 )
 var (
 	meas Sample
@@ -30,14 +31,14 @@ func main() {
 
 	ln, err := net.Listen("tcp", net.JoinHostPort("", genPort()))
 	if err != nil {
-		log.Fatal(err)
+
 	}
 	defer ln.Close()
 	log.Printf("Listen on %s", ln.Addr())
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			log.Fatal(err)
+
 		}
 		log.Printf("Connection from %s", conn.RemoteAddr())
 		addSubscriber(conn)
@@ -88,15 +89,15 @@ func emit(){
 	for{
 		status, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
+
 		}
 		err = json.Unmarshal([]byte(status), &meas)
 		if err != nil {
-			log.Fatal(err)
+
 		}
 		err = json.Unmarshal([]byte(meas.Value), &smpvs)
 		if err != nil {
-			log.Fatal(err)
+
 		}
 		smpvToSend = list.New()
 		stringsToSend = list.New()
@@ -106,6 +107,10 @@ func emit(){
 		for x := 0; x < len(smpvs.Data); x++ {
 				buildStructure(smpvs.Data[x])
 			}
+
+			updateString()
+			updateInv()
+			updateFarms()
 
 			pv := smpvToSend.Front()
 			for pv != nil {
@@ -117,6 +122,9 @@ func emit(){
 			string := stringsToSend.Front()
 			for string != nil {
 				stringObj := string.Value.(*Sstring)
+				fmt.Println(stringObj.SMPV_Pch.V)
+				fmt.Println(stringObj.SMPV_Uch.V)
+				fmt.Println(stringObj.SMPV_Ich.V)
 				updateSubscribersStr(stringObj)
 				string = string.Next()
 			}
@@ -124,8 +132,21 @@ func emit(){
 			inv := invertersToSend.Front()
 			for inv != nil {
 				invObj := inv.Value.(*Inverter)
+				fmt.Println(invObj.SMPV_Pch.V)
+				fmt.Println(invObj.SMPV_Uch.V)
+				fmt.Println(invObj.SMPV_Ich.V)
 				updateSubscribersInv(invObj)
 				inv = inv.Next()
+			}
+
+			farm := farmsToSend.Front()
+			for farm != nil {
+				farmObj := farm.Value.(*Farm)
+				fmt.Println(farmObj.SMPV_Pch.V)
+				fmt.Println(farmObj.SMPV_Uch.V)
+				fmt.Println(farmObj.SMPV_Ich.V)
+				updateSubscribersFarm(farmObj)
+				farm = farm.Next()
 			}
 
 	}

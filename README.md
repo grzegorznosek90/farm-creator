@@ -1,4 +1,4 @@
-# Generator
+# Farm creator
 
 ## Environment variables
 
