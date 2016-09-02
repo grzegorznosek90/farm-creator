@@ -64,7 +64,7 @@ func buildStructure(smpv *SMPV) {
 
 		invName := "INV-" + fmt.Sprintf("%06d", smpv.Inv_num)
 		farmName := "Farm-1";
-		
+
 		toSend := new(SMPVToSend)
 		toSend.IgtIdSmpv = smpvName;
 		toSend.IgtIdString = stringName;
@@ -101,7 +101,7 @@ func buildStructure(smpv *SMPV) {
 		toSendString.SMPV_Pch.V += smpv.Measurements.Pch.V
 		toSendString.SMPV_Uch.V += smpv.Measurements.Uch.V
 		toSendString.SMPV_E.V += smpv.Measurements.E
-		if smpv.Measurements.Kch.V >0 {
+		if smpv.Measurements.Uch.Q ==192 && smpv.Measurements.Ich.Q==192 {
 					toSendString.SMPV_ok_num++
 				} else {
 					toSendString.SMPV_error_num++
@@ -130,7 +130,7 @@ func buildStructure(smpv *SMPV) {
 		toSendInverter.SMPV_Pch.V += smpv.Measurements.Pch.V
 		toSendInverter.SMPV_Uch.V += smpv.Measurements.Uch.V
 		toSendInverter.SMPV_E.V += smpv.Measurements.E
-		if smpv.Measurements.Kch.V >0 {
+		if smpv.Measurements.Uch.Q ==192 && smpv.Measurements.Ich.Q==192 {
 					toSendInverter.SMPV_ok_num++
 				} else {
 					toSendInverter.SMPV_error_num++
@@ -159,7 +159,7 @@ func buildStructure(smpv *SMPV) {
 		toSendFarm.SMPV_Pch.V += smpv.Measurements.Pch.V
 		toSendFarm.SMPV_Uch.V += smpv.Measurements.Uch.V
 		toSendFarm.SMPV_E.V += smpv.Measurements.E
-		if smpv.Measurements.Kch.V >0 {
+			if smpv.Measurements.Uch.Q ==192 && smpv.Measurements.Ich.Q==192 {
 					toSendFarm.SMPV_ok_num++
 				} else {
 					toSendFarm.SMPV_error_num++

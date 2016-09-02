@@ -55,9 +55,7 @@ func updateString(){
 	string := stringsToSend.Front()
 	for string != nil {
 		str := string.Value.(*Sstring)
-
-			str.SMPV_Ich.V = str.SMPV_Ich.V/float64(str.SMPV_num)
-
+		str.SMPV_Ich.V = str.SMPV_Ich.V/float64(str.SMPV_num)
 		string = string.Next()
 	}
 }

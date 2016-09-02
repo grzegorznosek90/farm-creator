@@ -54,9 +54,20 @@ func updateInv(){
 	inv := invertersToSend.Front()
 	for inv != nil {
 		inverter := inv.Value.(*Inverter)
-
-			inverter.SMPV_Ich.V = inverter.SMPV_Ich.V/float64(inverter.SMPV_num)
-
+		inverter.SMPV_Ich.V = inverter.SMPV_Ich.V/float64(inverter.SMPV_num)
+		string := stringsToSend.Front()
+		for string != nil {
+			str := string.Value.(*Sstring)
+			if str.IgtIdGroup == inverter.IgtIdGroup {
+				if str.SMPV_num == str.SMPV_error_num {
+					inverter.STRING_L_error_num++;
+				} else{
+					inverter.STRING_L_ok_num ++;
+				}
+			}
+			string = string.Next()
+		}
+		inverter.STRING_L_num = inverter.STRING_L_ok_num + inverter.STRING_L_error_num;
 		inv = inv.Next()
 	}
 }

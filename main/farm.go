@@ -60,7 +60,20 @@ func updateFarms(){
 		frm := farm.Value.(*Farm)
 
 			frm.SMPV_Ich.V = frm.SMPV_Ich.V/float64(frm.SMPV_num)
-
+			inv := invertersToSend.Front()
+			for inv != nil {
+				invObj := inv.Value.(*Inverter)
+				if invObj.STRING_L_num == invObj.STRING_L_error_num {
+					frm.INV_L_error_num++;
+				} else{
+					frm.INV_L_ok_num ++;
+				}
+				frm.STRING_L_num = invObj.STRING_L_num;
+				frm.STRING_L_error_num = invObj.STRING_L_error_num;
+				frm.STRING_L_ok_num = invObj.STRING_L_ok_num;
+				inv = inv.Next()
+			}
+		frm.INV_L_num = frm.INV_L_ok_num + frm.INV_L_error_num;
 		farm = farm.Next()
 	}
 }

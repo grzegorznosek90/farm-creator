@@ -125,6 +125,10 @@ func emit(){
 				fmt.Println(stringObj.SMPV_Pch.V)
 				fmt.Println(stringObj.SMPV_Uch.V)
 				fmt.Println(stringObj.SMPV_Ich.V)
+
+				fmt.Println(stringObj.SMPV_ok_num)
+				fmt.Println(stringObj.SMPV_error_num)
+				fmt.Println(stringObj.SMPV_num)
 				updateSubscribersStr(stringObj)
 				string = string.Next()
 			}
@@ -135,6 +139,14 @@ func emit(){
 				fmt.Println(invObj.SMPV_Pch.V)
 				fmt.Println(invObj.SMPV_Uch.V)
 				fmt.Println(invObj.SMPV_Ich.V)
+
+				fmt.Println(invObj.SMPV_ok_num)
+				fmt.Println(invObj.SMPV_error_num)
+				fmt.Println(invObj.SMPV_num)
+
+				fmt.Println(invObj.STRING_L_ok_num)
+				fmt.Println(invObj.STRING_L_error_num)
+				fmt.Println(invObj.STRING_L_num)
 				updateSubscribersInv(invObj)
 				inv = inv.Next()
 			}
@@ -145,6 +157,18 @@ func emit(){
 				fmt.Println(farmObj.SMPV_Pch.V)
 				fmt.Println(farmObj.SMPV_Uch.V)
 				fmt.Println(farmObj.SMPV_Ich.V)
+
+				fmt.Println(farmObj.SMPV_ok_num)
+				fmt.Println(farmObj.SMPV_error_num)
+				fmt.Println(farmObj.SMPV_num)
+
+				fmt.Println(farmObj.STRING_L_ok_num)
+				fmt.Println(farmObj.STRING_L_error_num)
+				fmt.Println(farmObj.STRING_L_num)
+
+				fmt.Println(farmObj.INV_L_ok_num)
+				fmt.Println(farmObj.INV_L_error_num)
+				fmt.Println(farmObj.INV_L_num)
 				updateSubscribersFarm(farmObj)
 				farm = farm.Next()
 			}
