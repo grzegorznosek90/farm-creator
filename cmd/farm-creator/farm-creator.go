@@ -66,14 +66,6 @@ func listenPort() string {
 	return "3000"
 }
 
-func listenIp() string {
-	ip := os.Getenv("LISTEN_IP")
-	if ip != "" {
-		return ip
-	}
-	return "127.0.0.1"
-}
-
 func addSubscriberOut(conn net.Conn) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -88,7 +80,7 @@ func addSubscriberIn(conn net.Conn) {
 
 
 func listenIn(){
-  lnIn, erriIn  := net.Listen("tcp", net.JoinHostPort(listenIp(), listenPort()))
+  lnIn, erriIn  := net.Listen("tcp", net.JoinHostPort("", listenPort()))
 	if erriIn != nil {
 		log.Fatal(erriIn)
 	}
