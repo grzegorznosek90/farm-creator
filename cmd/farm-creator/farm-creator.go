@@ -63,7 +63,7 @@ func listenPort() string {
 	if port != "" {
 		return port
 	}
-	return "3000"
+	return "3010"
 }
 
 func addSubscriberOut(conn net.Conn) {
