@@ -26,7 +26,7 @@ type Farm struct {
 
 
 
-	func (s *Subscriber) SendFarm(sample *Farm) error {
+func (s *Subscriber) SendFarm(sample *Farm) error {
 	if err := s.enc.Encode(sample); err != nil {
 		return err
 	}
@@ -39,16 +39,16 @@ type Farm struct {
 	return nil
 }
 
-	func updateSubscribersFarm(sample *Farm) {
+func updateSubscribersFarm(sample *Farm) {
 	mu.Lock()
 	defer mu.Unlock()
-	log.Printf("Subscribers: %d", subs.Len())
-	e := subs.Front()
+	log.Printf("Subscribers: %d", subsOut.Len())
+	e := subsOut.Front()
 	for e != nil {
 		s := e.Value.(*Subscriber)
 		if err := s.SendFarm(sample); err != nil {
 			log.Printf("Subscriber failed, err: %v", err)
-			subs.Remove(e)
+			subsOut.Remove(e)
 		}
 		e = e.Next()
 	}

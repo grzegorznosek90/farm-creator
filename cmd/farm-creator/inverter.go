@@ -38,13 +38,13 @@ func (s *Subscriber) SendInv(sample *Inverter) error {
 func updateSubscribersInv(sample *Inverter) {
 	mu.Lock()
 	defer mu.Unlock()
-	log.Printf("Subscribers: %d", subs.Len())
-	e := subs.Front()
+	log.Printf("Subscribers: %d", subsOut.Len())
+	e := subsOut.Front()
 	for e != nil {
 		s := e.Value.(*Subscriber)
 		if err := s.SendInv(sample); err != nil {
 			log.Printf("Subscriber failed, err: %v", err)
-			subs.Remove(e)
+			subsOut.Remove(e)
 		}
 		e = e.Next()
 	}

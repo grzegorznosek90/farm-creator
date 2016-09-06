@@ -24,7 +24,7 @@ type Sstring struct {
 
 
 func (s *Subscriber) SendString(sample *Sstring) error {
-	if err := s.enc.Encode(sample); err != nil {
+		if err := s.enc.Encode(sample); err != nil {
 		return err
 	}
 	if err := s.w.WriteByte(0); err != nil {
@@ -39,13 +39,13 @@ func (s *Subscriber) SendString(sample *Sstring) error {
 func updateSubscribersStr(sample *Sstring) {
 	mu.Lock()
 	defer mu.Unlock()
-	log.Printf("Subscribers: %d", subs.Len())
-	e := subs.Front()
+	log.Printf("Subscribers: %d", subsOut.Len())
+	e := subsOut.Front()
 	for e != nil {
 		s := e.Value.(*Subscriber)
 		if err := s.SendString(sample); err != nil {
 			log.Printf("Subscriber failed, err: %v", err)
-			subs.Remove(e)
+			subsOut.Remove(e)
 		}
 		e = e.Next()
 	}

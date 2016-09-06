@@ -36,13 +36,13 @@ func (s *Subscriber) SendPv(sample *SMPVToSend) error {
 func updateSubscribersPv(sample *SMPVToSend) {
 	mu.Lock()
 	defer mu.Unlock()
-	log.Printf("Subscribers: %d", subs.Len())
-	e := subs.Front()
+	log.Printf("Subscribers: %d", subsOut.Len())
+	e := subsOut.Front()
 	for e != nil {
 		s := e.Value.(*Subscriber)
 		if err := s.SendPv(sample); err != nil {
 			log.Printf("Subscriber failed, err: %v", err)
-			subs.Remove(e)
+			subsOut.Remove(e)
 		}
 		e = e.Next()
 	}
@@ -138,8 +138,6 @@ func buildStructure(smpv *SMPV) {
 
 		toSendInverter.SMPV_num = toSendInverter.SMPV_ok_num + toSendInverter.SMPV_error_num
 	  invertersToSend.PushBack(toSendInverter)
-
-
 
 		toSendFarm := new(Farm)
 		farm := farmsToSend.Front()

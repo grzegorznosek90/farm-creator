@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"sync"
-	"fmt"
 )
 var (
 	meas Sample
@@ -21,27 +20,28 @@ var (
 )
 
 var mu sync.Mutex
-var subs = list.New()
+var subsOut = list.New()
+var subsIn = list.New()
 func main() {
-
-
 	log.SetOutput(os.Stdout)
 
 	go emit()
 
-	ln, err := net.Listen("tcp", net.JoinHostPort("", genPort()))
-	if err != nil {
+  go listenIn()
 
+	lnOut, errOut  := net.Listen("tcp", net.JoinHostPort("", genPort()))
+	if errOut != nil {
+		log.Fatal(errOut)
 	}
-	defer ln.Close()
-	log.Printf("Listen on %s", ln.Addr())
+	defer lnOut.Close()
+	log.Printf("Listen on %s", lnOut.Addr())
 	for {
-		conn, err := ln.Accept()
+		conn, err := lnOut.Accept()
 		if err != nil {
-
+			log.Fatal(err)
 		}
 		log.Printf("Connection from %s", conn.RemoteAddr())
-		addSubscriber(conn)
+		addSubscriberOut(conn)
 	}
 }
 
@@ -74,30 +74,50 @@ func listenIp() string {
 	return "127.0.0.1"
 }
 
-func addSubscriber(conn net.Conn) {
+func addSubscriberOut(conn net.Conn) {
 	mu.Lock()
 	defer mu.Unlock()
-	subs.PushBack(NewSubscriber(conn))
+	subsOut.PushBack(NewSubscriber(conn))
+}
+
+func addSubscriberIn(conn net.Conn) {
+	mu.Lock()
+	defer mu.Unlock()
+	subsIn.PushBack(NewSubscriber(conn))
 }
 
 
-func emit(){
-	conn, err := net.Dial("tcp", net.JoinHostPort(listenIp(), listenPort()))
-	if err != nil {
-		// handle error
+func listenIn(){
+  lnIn, erriIn  := net.Listen("tcp", net.JoinHostPort(listenIp(), listenPort()))
+	if erriIn != nil {
+		log.Fatal(erriIn)
 	}
-	for{
-		status, err := bufio.NewReader(conn).ReadString('\n')
+	defer lnIn.Close()
+	log.Printf("Listen on %s", lnIn.Addr())
+	for {
+		conn, err := lnIn.Accept()
 		if err != nil {
-
+			log.Fatal(err)
 		}
-		err = json.Unmarshal([]byte(status), &meas)
-		if err != nil {
+		log.Printf("Connection from %s", conn.RemoteAddr())
+		addSubscriberIn(conn)
+	}
+}
 
+func emit(){
+	for{
+		if subsIn.Len()!=0{
+		e := subsIn.Front()
+		s := e.Value.(*Subscriber)
+		status := s.ReadMeas()
+
+		err := json.Unmarshal([]byte(status), &meas)
+		if err != nil {
+			log.Fatal(err)
 		}
 		err = json.Unmarshal([]byte(meas.Value), &smpvs)
 		if err != nil {
-
+			log.Fatal(err)
 		}
 		smpvToSend = list.New()
 		stringsToSend = list.New()
@@ -122,13 +142,6 @@ func emit(){
 			string := stringsToSend.Front()
 			for string != nil {
 				stringObj := string.Value.(*Sstring)
-				fmt.Println(stringObj.SMPV_Pch.V)
-				fmt.Println(stringObj.SMPV_Uch.V)
-				fmt.Println(stringObj.SMPV_Ich.V)
-
-				fmt.Println(stringObj.SMPV_ok_num)
-				fmt.Println(stringObj.SMPV_error_num)
-				fmt.Println(stringObj.SMPV_num)
 				updateSubscribersStr(stringObj)
 				string = string.Next()
 			}
@@ -136,17 +149,6 @@ func emit(){
 			inv := invertersToSend.Front()
 			for inv != nil {
 				invObj := inv.Value.(*Inverter)
-				fmt.Println(invObj.SMPV_Pch.V)
-				fmt.Println(invObj.SMPV_Uch.V)
-				fmt.Println(invObj.SMPV_Ich.V)
-
-				fmt.Println(invObj.SMPV_ok_num)
-				fmt.Println(invObj.SMPV_error_num)
-				fmt.Println(invObj.SMPV_num)
-
-				fmt.Println(invObj.STRING_L_ok_num)
-				fmt.Println(invObj.STRING_L_error_num)
-				fmt.Println(invObj.STRING_L_num)
 				updateSubscribersInv(invObj)
 				inv = inv.Next()
 			}
@@ -154,38 +156,33 @@ func emit(){
 			farm := farmsToSend.Front()
 			for farm != nil {
 				farmObj := farm.Value.(*Farm)
-				fmt.Println(farmObj.SMPV_Pch.V)
-				fmt.Println(farmObj.SMPV_Uch.V)
-				fmt.Println(farmObj.SMPV_Ich.V)
-
-				fmt.Println(farmObj.SMPV_ok_num)
-				fmt.Println(farmObj.SMPV_error_num)
-				fmt.Println(farmObj.SMPV_num)
-
-				fmt.Println(farmObj.STRING_L_ok_num)
-				fmt.Println(farmObj.STRING_L_error_num)
-				fmt.Println(farmObj.STRING_L_num)
-
-				fmt.Println(farmObj.INV_L_ok_num)
-				fmt.Println(farmObj.INV_L_error_num)
-				fmt.Println(farmObj.INV_L_num)
 				updateSubscribersFarm(farmObj)
 				farm = farm.Next()
 			}
-
+		}
 	}
 }
+func (s *Subscriber) ReadMeas() string {
+	status, err := s.r.ReadString('\n')
+	if err!=nil {
+		log.Fatal(err)
+	}
+	return status
+}
+
 
 type Subscriber struct {
 	conn net.Conn
 	w    *bufio.Writer
+	r    *bufio.Reader
 	enc  *json.Encoder
 }
 
 func NewSubscriber(conn net.Conn) *Subscriber {
 	w := bufio.NewWriter(conn)
+	r := bufio.NewReader(conn)
 	enc := json.NewEncoder(w)
-	return &Subscriber{conn: conn, w: w, enc: enc}
+	return &Subscriber{conn: conn, w: w, r: r, enc: enc}
 }
 
 func (s *Subscriber) Close() {
